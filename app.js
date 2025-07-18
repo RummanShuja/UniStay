@@ -112,6 +112,7 @@ async function main() {
     await mongoose.connect(DB_URL);
 }
 
+app.set('trust proxy', 1); // trust first proxy
 
 
 
