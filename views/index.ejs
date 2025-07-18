@@ -1,0 +1,75 @@
+<%- layout("/layouts/boilerplate.ejs") %>
+
+    <body>
+        <% if(msg !== 'null'){ %>
+            <h1><%= msg %></h1>
+            <% } %>
+        <div class="cards row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 mt-4">
+            <div class="toast-container position-fixed bottom-0 end-0 p-3">
+                <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="toast-header">
+                        <strong class="me-auto">UniStay</strong>
+                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                    <div class="toast-body" style="color: blue;">
+                        Signup to bookmark listings
+                    </div>
+                </div>
+            </div>
+
+            <% for(let listing of listings){ %>
+                <a href="/listings/<%=listing._id%>">
+
+                    <div class="card col <%= listing.availability==='unavailable' ? 'opacity-100' : 'opacity-50'%> ">
+                        <div class="images ">
+                            <% for(let image of listing.image) {%>
+                                <img src="<%=image.url%>" class="card-img-top" alt="...">
+                                <% } %>
+                        </div>
+                        <div class="cardBody indexCardBody">
+                            <div>
+
+                                <p class="<%= listing.availability === 'unavailable' ? 'text-black' : 'text-danger' %> cardText"><b>
+                                    <%= listing.title %>
+                                </b></p>
+                                <% if(listing.availability==="unavailable"){ %>
+                                    <p class="cardText">&#8377;<%= listing.price.toLocaleString('en-IN') %> per month</p>
+                                <% } %>
+                            </div>
+                            <div class="save">
+                                <label class="" for="bookmark">
+                                <!--  -->
+                                    <% if(currUser && currUser.savedListing.includes(listing._id)) {%>
+                                    <i class="fa-solid fa-bookmark" id="<%=listing._id%>"></i>
+                                <% } %>
+                                <% if(currUser && !currUser.savedListing.includes(listing._id)) {%>
+                                    <i class="fa-regular fa-bookmark" id="<%=listing._id%>"></i>
+                                <% } %>
+                                <% if(!currUser) {%>
+                                    <i class="fa-regular fa-bookmark" id="login"></i>
+                                <% } %>
+                                </label>
+                                    <input type="checkbox" class="bookmark btn-check" id="bookmark" autocomplete="off">
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            <% } %>
+
+            <% if(listings.length<1){ %>
+                <div class="mt-3">
+                    <% if(msg && msg.includes("Saved")) {%>
+                        No bookmarks    
+                    <% } %>
+
+                    <% if(msg && msg.includes("Your")) {%>
+                        Your listings will appear here once you add them.
+                        <br/><br/>
+                        Click <a href="/listings/new">‘Create Listing’</a> to get started.
+                    <% } %>
+                    
+                </div>
+            <%  }%>
+
+        </div>
+    </body>

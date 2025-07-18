@@ -1,0 +1,44 @@
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/listings">
+      <img src="/images/unistay-logo.png" alt="UniStay Logo" class="logo" />
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="/listings">All Listings</a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link active" href="/listings/new">Add New Listing</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="/listings/savedListings">Saved Listings</a>
+        </li>
+        <% if(currUser && currUser.userType==="lister"){ %>
+          <li class="nav-item">
+            <a class="nav-link active" href="/listings/myListing">My Listing</a>
+          </li>    
+        <% } %>    
+      </ul>
+      <ul class="user-section navbar-nav">
+            <% if(!currUser){ %>
+              <li class="nav-item end">
+                <a class="nav-link active" href="/signup">Signup</a>
+              </li>
+            <% } %>
+            <% if(currUser){ %>
+              <li class="nav-item ">
+                <a class="nav-link active" href="/logout">Logout</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link active" href="/profile">Profile &nbsp;<img src="<%=currUser.photo%>" alt="" class="profile-photo"></a>
+              </li>
+            <% } %>
+        </ul>
+    </div>
+  </div>
+</nav>
