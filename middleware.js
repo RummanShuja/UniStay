@@ -138,18 +138,17 @@ module.exports.uploadMiddleware = async (req, res, next) => {
         const processedUpload = req.files.map(async (file) => {
             let filename = file.fieldname;
             let originalName = file.originalname;
-            let processedBuffer = file.buffer;
-            let quality = 80;
-            let currentSize = file.size;
-            while (currentSize > 0.6 * 1024 * 1024 && quality > 30) {
-                processedBuffer = await sharp(processedBuffer)
-                    .resize({ width: 1200, withoutEnlargement: true })
-                    .jpeg({ quality })
-                    .toBuffer();
+            let processedBuffer = await sharp(file.buffer)
+                .resize({width: 1200, fit: 'inside', withoutEnlargement:true})
+                .jpeg({quality:75})
+                .toBuffer();
 
-                quality -= 10;
-                currentSize = processedBuffer.length;
+            if(processedBuffer.length>0.6*1024*1024){
+                processedBuffer = await sharp(processedBuffer)
+                    .jpeg({quality:60})
+                    .toBuffer();
             }
+            
             const result = await new Promise((resolve, reject) => {
                 const uploadStream = cloudinary.uploader.upload_stream(
                     { folder: 'UniStay' },
