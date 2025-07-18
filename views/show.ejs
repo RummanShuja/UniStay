@@ -30,63 +30,64 @@
 
                 <div class="images">
                     <% listing.image.forEach((image, index)=> { %>
-                        <img src="<%= image.url %>" class="listing-thumbnail <%= listing.availability==='unavailable' ? 'opacity-100' : 'opacity-50'%>" data-bs-toggle="modal"
-                            data-bs-target="#imageModal" data-image="<%= image.url %>" data-index="<%= index %>"
-                            alt="Thumbnail <%= index + 1 %>">
+                        <img src="<%= image.url %>"
+                            class="listing-thumbnail <%= listing.availability==='unavailable' ? 'opacity-100' : 'opacity-50'%>"
+                            data-bs-toggle="modal" data-bs-target="#imageModal" data-image="<%= image.url %>"
+                            data-index="<%= index %>" alt="Thumbnail <%= index + 1 %>">
                         <% }) %>
-                    </div>
-                    <small class="form-text text-muted">
-                        Click on image to enlarge
-                    </small>
-
-                    
-                    <div class="cardBody mt-4">
-                    <% if(listing.availability==="unavailable"){ %>
-
-                    <p class="cardText mt-3">
-                        <b>Lister Name: </b>
-                        <%= listing.owner.name %>
-                    </p>
-                    <p class="cardText">
-                        <b>Area/Locality: </b>
-                        <%= listing.address %>
-                    </p>
-
-                    <p class="cardText mt-3">
-                        <b>Rent: </b> &#8377;<%= listing.price.toLocaleString('en-IN') %> per month
-                    </p>
-                    <p class="cardText">
-                        <b>Security: </b> &#8377;<%= listing.security.toLocaleString('en-IN') %>
-                    </p>
-                    <p class="cardText">
-                        <b>Brokerage: </b> &#8377;<%= listing.brokerage.toLocaleString('en-IN') %>
-                    </p>
-
-                    <p class="cardText mt-2">
-                        <b>Description</b>
-                    <ul>
-                        <% listing.description.trim().split('\n').forEach(line=> { %>
-                            <li>
-                                <%= line %>
-                            </li>
-                            <% }) %>
-                    </ul>
-                    </p>
-                      <% }else{ %>
-                            <h4>This listing is no more available.</h4>
-                        <% } %>  
-
-                    <% let pass=0; if(currUser){ for(let i=0; i<listing.interestedViewer.length; i++){ let
-                        vid=listing.interestedViewer[i].viewerId; if(vid===currUser._id.toString()){ pass=1; break; } }
-                        } %>
-                        <% if( currUser && pass && listing.availability==="unavailable") {%>
-                            <p class="cardText">
-                                <b>Lister Phone Number: </b>
-                                <%= listing.owner.phoneNumber %>
-                            </p>
-                            <% } %>
                 </div>
-                
+                <small class="form-text text-muted">
+                    Click on image to enlarge
+                </small>
+
+
+                <div class="cardBody mt-4">
+                    <% if(listing.availability==="unavailable" ){ %>
+
+                        <p class="cardText mt-3">
+                            <b>Lister Name: </b>
+                            <%= listing.owner.name %>
+                        </p>
+                        <p class="cardText">
+                            <b>Area/Locality: </b>
+                            <%= listing.address %>
+                        </p>
+
+                        <p class="cardText mt-3">
+                            <b>Rent: </b> &#8377;<%= listing.price.toLocaleString('en-IN') %> per month
+                        </p>
+                        <p class="cardText">
+                            <b>Security: </b> &#8377;<%= listing.security.toLocaleString('en-IN') %>
+                        </p>
+                        <p class="cardText">
+                            <b>Brokerage: </b> &#8377;<%= listing.brokerage.toLocaleString('en-IN') %>
+                        </p>
+
+                        <p class="cardText mt-2">
+                            <b>Description</b>
+                        <ul>
+                            <% listing.description.trim().split('\n').forEach(line=> { %>
+                                <li>
+                                    <%= line %>
+                                </li>
+                                <% }) %>
+                        </ul>
+                        </p>
+                        <% }else{ %>
+                            <h4>This listing is no more available.</h4>
+                            <% } %>
+
+                                <% let pass=0; if(currUser){ for(let i=0; i<listing.interestedViewer.length; i++){ let
+                                    vid=listing.interestedViewer[i].viewerId; if(vid===currUser._id.toString()){ pass=1;
+                                    break; } } } %>
+                                    <% if( currUser && pass && listing.availability==="unavailable" ) {%>
+                                        <p class="cardText">
+                                            <b>Lister Phone Number: </b>
+                                            <%= listing.owner.phoneNumber %>
+                                        </p>
+                                        <% } %>
+                </div>
+
             </div>
             <!-- buttons -->
             <% if(currUser && currUser._id.equals(listing.owner._id)){ %>
@@ -109,38 +110,57 @@
                 <% } %>
 
                     <!-- show this I'm interested button to viewer only -->
-                    <% if(currUser && !pass && currUser.userType!=="lister" && listing.availability==="unavailable" ){ %>
-                        <div class="w-50 mt-5">
-                            <form method="POST" action="/listings/<%=listing._id%>/interested">
-                                <button class="btn w-100 btn-primary">I'm interested</button>
-                            </form>
-                        </div>
-                        <% }else{ %>
-                            <% if(currUser && currUser.userType!=="lister"&& listing.availability==="unavailable" ){ %>
-                                <div class="disable-interested-btn w-50 mt-5">
-                                    <button class="btn w-100  btn-primary " disabled>I'm interested</button>
-                                </div>
-                                <% } %>
-                                    <% } %>
+                    <% const isLoggedIn=!!currUser; const isViewer=isLoggedIn && currUser.userType !=="lister" ; const
+                        isActive=listing.availability==="unavailable" ; %>
 
-                                        <!-- show only to lister the viewers who are interested  -->
-                                        <% if(currUser && currUser._id.equals(listing.owner._id) && listing.availability==="unavailable"){ %>
-                                            <div class="Interested Viewers mt-4">
-                                                <hr>
-                                                <h3>Interested Viewers</h3>
-                                                <% if(listing.interestedViewer.length <1 ) {%>
-                                                    No one has showed interest in your listing.
+                        <% if (isActive) { %>
+                            <% if (isViewer) { %>
+                                <% if (!pass) { %>
+                                    <!-- Logged-in viewer, not yet interested: REAL ACTION FORM -->
+                                    <div class="w-50 mt-5">
+                                        <form method="POST" action="/listings/<%= listing._id %>/interested">
+                                            <button class="btn w-100 btn-primary" type="submit">I'm interested</button>
+                                        </form>
+                                    </div>
+                                    <% } else { %>
+                                        <!-- Logged-in viewer already interested: disabled triggers toast -->
+                                        <div class="disable-interested-btn w-50 mt-5">
+                                            <button class="btn w-100 btn-success" type="button" disabled>I'm
+                                                interested</button>
+                                        </div>
+                                        <% } %>
+                                            <% } else if (!isLoggedIn) { %>
+                                                <!-- Guest (not logged in): disabled triggers toast + login prompt (toast code) -->
+                                                <div class="disable-interested-btn w-50 mt-5">
+                                                    <button class="btn w-100 btn-primary" type="button" disabled>I'm
+                                                        interested</button>
+                                                </div>
+                                                <% } %>
                                                     <% } %>
-                                                        <ul>
-                                                            <% for(let viewer of listing.interestedViewer){ %>
-                                                                <li>
-                                                                    <%= viewer.viewerName %> &nbsp;&nbsp;|&nbsp;&nbsp;
-                                                                        &#128222; <%= viewer.viewerContact%>
-                                                                </li>
-                                                                <% } %>
-                                                        </ul>
-                                            </div>
-                                            <% } %>
+
+
+                                                        <!-- show only to lister the viewers who are interested  -->
+                                                        <% if(currUser && currUser._id.equals(listing.owner._id) &&
+                                                            listing.availability==="unavailable" ){ %>
+                                                            <div class="Interested Viewers mt-4">
+                                                                <hr>
+                                                                <h3>Interested Viewers</h3>
+                                                                <% if(listing.interestedViewer.length <1 ) {%>
+                                                                    No one has showed interest in your listing.
+                                                                    <% } %>
+                                                                        <ul>
+                                                                            <% for(let viewer of
+                                                                                listing.interestedViewer){ %>
+                                                                                <li>
+                                                                                    <%= viewer.viewerName %>
+                                                                                        &nbsp;&nbsp;|&nbsp;&nbsp;
+                                                                                        &#128222; <%=
+                                                                                            viewer.viewerContact%>
+                                                                                </li>
+                                                                                <% } %>
+                                                                        </ul>
+                                                            </div>
+                                                            <% } %>
 
         </div>
         <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="modal-title" aria-hidden="true">
