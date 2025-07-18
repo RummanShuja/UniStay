@@ -73,93 +73,15 @@ module.exports.isLister = (req, res, next) => {
     }
 }
 
-// module.exports.limitNewImages = async (req, res, next) => {
-//     let imageCount = req.files ? req.files.length : 0;
-//     let destroy = async () => {
-//         for (let file of req.files) {
-//             await cloudinary.uploader.destroy(file.filename);
-//         }
-//     }
-//     if (imageCount > 6) {
-//         destroy();
-//         req.flash("error", "You can upload only 6 images per listing");
-//         res.redirect("/listings/new");
-//     }
-//     else if (imageCount === 0) {
-//         req.flash("error", "You must have atleast one image for a listing");
-//         res.redirect("/listings/new");
-//     }
-//     else {
-//         next();
-//     }
-// }
-
-// module.exports.limitImages = async (req, res, next) => {
-//     let { id } = req.params;
-//     let deleteCount = req.body.deleteImages ? req.body.deleteImages.length : 0;
-//     let allImages = req.files;
-//     let updatedImages = [];
-//     let newImages = [];
-//     if (allImages) {
-//         allImages.forEach((img) => {
-//             if (img.fieldname.includes("replace")) {
-//                 updatedImages.push(img);
-//             }
-//             else {
-//                 newImages.push(img);
-//             }
-//         });
-//     }
-
-//     let replaceCount = updatedImages ? updatedImages.length : 0;
-//     let newImgCount = newImages ? newImages.length : 0;
-
-//     let listing = await Listing.findById(id);
-//     let existingImgCount = listing.image ? listing.image.length : 0;
-//     let totalImg = existingImgCount + newImgCount - deleteCount - replaceCount;
-
-//     let destroy = async () => {
-//         for (let file of req.files) {
-//             await cloudinary.uploader.destroy(file.filename);
-//         }
-//     }
-//     if (totalImg > 6) {
-//         destroy();
-//         req.flash("error", "You can upload atmax 6 images per listing");
-//         res.redirect(`/listings/${id}/edit`);
-//     }
-//     else if (totalImg === 0) {
-//         req.flash("error", "You must have atleast one image for a listing");
-//         res.redirect(`/listings/${id}/edit`);
-//     }
-//     else {
-//         next();
-//     }
-// }
-// module.exports.uploadMiddleware = (req, res, next) => {
-//     upload.any()(req, res, function (err) {
-//         if (err) {
-//             req.flash("error", err.message);
-//             return res.redirect(`/listings`);
-//         }
-//         next();
-//     })
-// }
-
-
-
-
 
 //i will call this middleware after calling upload.any()
 module.exports.uploadMiddleware = async (req, res, next) => {
     try {
         let { id } = req.params;
-        let uploadedImages = [];
         if (id) {
             // this part is when a listing is edited, so it would contain the listing id in params
-            
-            let deleteCount = req.body.deleteImages ? req.body.deleteImages.length : 0;
-            let allImages = req.files;
+            const deleteCount = req.body.deleteImages ? req.body.deleteImages.length : 0;
+            const allImages = req.files;
             let updatedImages = [];
             let newImages = [];
             if (allImages) {
@@ -177,15 +99,19 @@ module.exports.uploadMiddleware = async (req, res, next) => {
             let newImgCount = newImages ? newImages.length : 0;
 
             let listing = await Listing.findById(id);
+            if(!listing){
+                req.flash("error","Listing not found");
+                return res.redirect("/listings");
+            }
             let existingImgCount = listing.image ? listing.image.length : 0;
             let totalImg = existingImgCount + newImgCount - deleteCount - replaceCount;
 
             if (totalImg > 6) {
-                req.flash("error", "You can upload atmax 6 images per listing");
+                req.flash("error", "You can upload at max 6 images per listing");
                 return res.redirect(`/listings/${id}/edit`);
             }
             else if (totalImg === 0) {
-                req.flash("error", "You must have atleast one image for a listing");
+                req.flash("error", "You must have at least one image for a listing");
                 return res.redirect(`/listings/${id}/edit`);
             }
 
@@ -205,11 +131,13 @@ module.exports.uploadMiddleware = async (req, res, next) => {
             }
         }
 
+        // If somehow no files got through, just move on
+        if (!req.files || req.files.length === 0) return next();
+
         // handlingcompression and uploading and saving back to req.files
-        for (file of req.files) {
+        const processedUpload = req.files.map(async (file) => {
             let filename = file.fieldname;
             let originalName = file.originalname;
-
             let processedBuffer = file.buffer;
             let quality = 80;
             let currentSize = file.size;
@@ -222,7 +150,6 @@ module.exports.uploadMiddleware = async (req, res, next) => {
                 quality -= 10;
                 currentSize = processedBuffer.length;
             }
-
             const result = await new Promise((resolve, reject) => {
                 const uploadStream = cloudinary.uploader.upload_stream(
                     { folder: 'UniStay' },
@@ -233,15 +160,15 @@ module.exports.uploadMiddleware = async (req, res, next) => {
                 )
                 streamifier.createReadStream(processedBuffer).pipe(uploadStream);
             })
-            uploadedImages.push({
-                url: result.url,
-                originalName: originalName,
-                filename: filename,
+            return {
+                originalName,
+                filename,
+                url: result.secure_url || result.url,
                 public_id: result.public_id
-            })
-        }
-        req.files = uploadedImages;
-
+            }
+        });
+        const uploadedResults = await Promise.all(processedUpload);
+        req.files = uploadedResults;
         next();
 
     } catch (err) {
@@ -249,7 +176,7 @@ module.exports.uploadMiddleware = async (req, res, next) => {
         req.flash("error", err.message);
         res.redirect("/listings");
     }
-}
+};
 
 module.exports.isAvailable = async (req, res, next) => {
     let { id } = req.params;
