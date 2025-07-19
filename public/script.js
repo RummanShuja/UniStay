@@ -88,43 +88,43 @@ if (form) {
 }
 
 //please wait images are uploading in edit.ejs
-const uploadForm = document.querySelector('.upload_form');
-if (uploadForm) {
-  uploadForm.addEventListener("submit", () => {
-    const status = document.querySelector("#status");
-    status.style.display = "block";
-  })
-}
+// const uploadForm = document.querySelector('.upload_form');
+// if (uploadForm) {
+//   uploadForm.addEventListener("submit", () => {
+//     const status = document.querySelector("#status");
+//     status.style.display = "block";
+//   })
+// }
 
-//bookmarking listing with out reload
-let allBookmark = document.querySelectorAll(".cardBody > .save .fa-bookmark");
-if (allBookmark) {
+// //bookmarking listing with out reload
+// let allBookmark = document.querySelectorAll(".cardBody > .save .fa-bookmark");
+// if (allBookmark) {
 
-  allBookmark.forEach((bookmark) => {
-    bookmark.addEventListener("click", async () => {
-      try {
+//   allBookmark.forEach((bookmark) => {
+//     bookmark.addEventListener("click", async () => {
+//       try {
 
-        if (bookmark.id === "login") {
-          const toastLiveExample = document.getElementById('liveToast')
-          const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
-          toastBootstrap.show();
-        }
-        else {
-          const response = await fetch(`/save/${bookmark.id}`, {
-            method: "POST"
-          });
-          if (response.ok) {
-            bookmark.classList.toggle("fa-regular");
-            bookmark.classList.toggle("fa-solid");
-          }
-        }
-      }
-      catch (err) {
-        next(err);
-      }
-    })
-  })
-}
+//         if (bookmark.id === "login") {
+//           const toastLiveExample = document.getElementById('liveToast')
+//           const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
+//           toastBootstrap.show();
+//         }
+//         else {
+//           const response = await fetch(`/save/${bookmark.id}`, {
+//             method: "POST"
+//           });
+//           if (response.ok) {
+//             bookmark.classList.toggle("fa-regular");
+//             bookmark.classList.toggle("fa-solid");
+//           }
+//         }
+//       }
+//       catch (err) {
+//         next(err);
+//       }
+//     })
+//   })
+// }
 
 //disable-interested-btn
 let disableInterestedBtn = document.querySelector(".disable-interested-btn");
@@ -170,5 +170,118 @@ if (prevBtn) {
   prevBtn.addEventListener('click', () => {
     currentIndex = (currentIndex - 1 + imageUrls.length) % imageUrls.length;
     modalImage.src = imageUrls[currentIndex];
+  });
+}
+
+// handling image compression in client side
+// let formUpload = document.querySelector(".upload_form");
+// if(formUpload){
+//   formUpload.addEventListener('submit',async function(e){
+//     e.preventDefault();
+//     const fileInput = document.querySelector('input[type="file"]');
+//     const files = fileInput.files;
+//     // const form = this;
+//     if(!files.length){
+//       form.submit();
+//       return;
+//     }
+//     const options ={
+//       maxSizeMB: 0.6,
+//       maxWidthOrHeight: 1200,
+//       useWebWorker: true
+//     };
+//     const compressedFiles = [];
+//     for(let file of files){
+//       try{
+//         const compressedFile = await imageCompression(file, options);
+//         compressedFiles.push(compressedFile);
+//       }catch(err){
+//         console.log("Compression failed: ",err.message);
+//         compressedFiles.push(file);
+//       }
+//     }
+//     // console.log("compressedFiles",compressedFiles);
+//     const formData = new FormData(this);
+//     console.log(formData);
+
+
+//   })
+// } 
+// handling compression using canvas
+
+// compression function
+async function compressImage(file, maxWidth = 1200, quality = 0.6) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (e) => {
+      const img = new Image();
+      img.src = e.target.result;
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+        if (width > maxWidth) {
+          height = maxWidth / width * height;
+          width = maxWidth;
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              const compressedFile = new File([blob], file.name, { type: 'image/jpeg' });
+              resolve(compressedFile);
+            }
+            else {
+              reject(new Error("Compression failed"));
+            }
+          },
+          'image/jpeg',
+          quality
+        );
+      };
+      img.onerror = (err) => reject(err);
+    };
+    reader.onerror = (err) => reject(err);
+  });
+}
+
+// handling new listing form (compressing)
+let newListingForm = document.querySelector('#newListingForm');
+if(newListingForm){
+  newListingForm.addEventListener('submit',async function(e){
+    e.preventDefault();
+    const files = Array.from(document.querySelector('#image').files);
+    const compressFiles = await Promise.all(
+      files.map(file => file.size > 1*1024*1024 ? compressImage(file, 1200, 0.6) : Promise.resolve(file))
+    );
+    
+    const formData = new FormData(this);
+    // for (let [key, value] of formData.entries()) {
+    //   console.log(key, value);
+    // }
+    formData.delete('listing[image]');
+    compressFiles.forEach((file)=>{
+      formData.append('listing[image]',file);
+    })
+
+    try{
+      const response = await fetch(this.action, {
+        method: "POST",
+        body: formData
+      });
+
+      if(response.ok){
+        window.location.href = '/listings';
+      }else{
+        console.log("upload failed!");
+      }
+    }
+    catch(err){
+      console.log("Upload Error: ",err.message);
+    }
   });
 }

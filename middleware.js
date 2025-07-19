@@ -138,15 +138,12 @@ module.exports.uploadMiddleware = async (req, res, next) => {
         const processedUpload = req.files.map(async (file) => {
             let filename = file.fieldname;
             let originalName = file.originalname;
-            let processedBuffer = await sharp(file.buffer)
-                .resize({width: 1200, fit: 'inside', withoutEnlargement:true})
-                .jpeg({quality:75})
-                .toBuffer();
-
-            if(processedBuffer.length>0.6*1024*1024){
+            let processedBuffer = file.buffer;
+            if(processedBuffer.length>1*1024*1024){
                 processedBuffer = await sharp(processedBuffer)
-                    .jpeg({quality:60})
-                    .toBuffer();
+                .resize({width: 1200, fit: 'inside', withoutEnlargement:true})
+                .jpeg({quality:50})
+                .toBuffer();
             }
             
             const result = await new Promise((resolve, reject) => {
