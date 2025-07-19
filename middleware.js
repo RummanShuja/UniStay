@@ -81,21 +81,8 @@ module.exports.uploadMiddleware = async (req, res, next) => {
         if (id) {
             // this part is when a listing is edited, so it would contain the listing id in params
             const deleteCount = req.body.deleteImages ? req.body.deleteImages.length : 0;
-            const allImages = req.files;
-            let updatedImages = [];
-            let newImages = [];
-            if (allImages) {
-                allImages.forEach((img) => {
-                    if (img.fieldname.includes("replace")) {
-                        updatedImages.push(img);
-                    }
-                    else {
-                        newImages.push(img);
-                    }
-                });
-            }
-
-            let replaceCount = updatedImages ? updatedImages.length : 0;
+            const newImages = req.files;
+            
             let newImgCount = newImages ? newImages.length : 0;
 
             let listing = await Listing.findById(id);
@@ -104,7 +91,7 @@ module.exports.uploadMiddleware = async (req, res, next) => {
                 return res.redirect("/listings");
             }
             let existingImgCount = listing.image ? listing.image.length : 0;
-            let totalImg = existingImgCount + newImgCount - deleteCount - replaceCount;
+            let totalImg = existingImgCount + newImgCount - deleteCount;
 
             if (totalImg > 6) {
                 req.flash("error", "You can upload at max 6 images per listing");

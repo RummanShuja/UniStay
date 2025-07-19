@@ -39,10 +39,8 @@ if (deleteImg) {
       e.preventDefault();
       let parent = e.target.closest(".editImages");
       let hiddenInp = parent.querySelector('input[type="hidden"]');
-      let editImgName = parent.querySelector(".editImgName");
       if (parent.style.opacity === "0.6") {
         hiddenInp.disabled = true;
-        editImgName.querySelector("input").disabled = false;
         parent.style.opacity = 1;
         totalImg++;
       }
@@ -50,7 +48,6 @@ if (deleteImg) {
         if (totalImg > 1) {
           totalImg--;
           hiddenInp.disabled = false;
-          editImgName.querySelector("input").disabled = true;
           parent.style.opacity = 0.6;
         }
         else {
@@ -63,68 +60,36 @@ if (deleteImg) {
   });
 }
 
-// limiting image upload and showing 'please wait images are uploading' this is only for new.ejs
-let form = document.querySelector(".checkImageCount");
-let imageInput = document.querySelector(".imageInput");
-if (form) {
 
-  form.addEventListener("submit", (e) => {
-    const status = document.querySelector("#status");
-    status.style.display = "block";
+//bookmarking listing with out reload
+let allBookmark = document.querySelectorAll(".cardBody > .save .fa-bookmark");
+if (allBookmark) {
 
-    if (imageInput.files.length > 6 || imageInput.files.length < 1) {
-      e.preventDefault();
-      imageInput.style.color = "red";
-      const toastLiveExample = document.getElementById('liveToast')
-      const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
-      toastBootstrap.show();
-    }
-  })
-  imageInput.addEventListener("change", () => {
-    if (imageInput.style.color === "red") {
-      imageInput.style.color = "black";
-    }
+  allBookmark.forEach((bookmark) => {
+    bookmark.addEventListener("click", async () => {
+      try {
+
+        if (bookmark.id === "login") {
+          const toastLiveExample = document.getElementById('liveToast')
+          const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
+          toastBootstrap.show();
+        }
+        else {
+          const response = await fetch(`/save/${bookmark.id}`, {
+            method: "POST"
+          });
+          if (response.ok) {
+            bookmark.classList.toggle("fa-regular");
+            bookmark.classList.toggle("fa-solid");
+          }
+        }
+      }
+      catch (err) {
+        next(err);
+      }
+    })
   })
 }
-
-//please wait images are uploading in edit.ejs
-// const uploadForm = document.querySelector('.upload_form');
-// if (uploadForm) {
-//   uploadForm.addEventListener("submit", () => {
-//     const status = document.querySelector("#status");
-//     status.style.display = "block";
-//   })
-// }
-
-// //bookmarking listing with out reload
-// let allBookmark = document.querySelectorAll(".cardBody > .save .fa-bookmark");
-// if (allBookmark) {
-
-//   allBookmark.forEach((bookmark) => {
-//     bookmark.addEventListener("click", async () => {
-//       try {
-
-//         if (bookmark.id === "login") {
-//           const toastLiveExample = document.getElementById('liveToast')
-//           const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
-//           toastBootstrap.show();
-//         }
-//         else {
-//           const response = await fetch(`/save/${bookmark.id}`, {
-//             method: "POST"
-//           });
-//           if (response.ok) {
-//             bookmark.classList.toggle("fa-regular");
-//             bookmark.classList.toggle("fa-solid");
-//           }
-//         }
-//       }
-//       catch (err) {
-//         next(err);
-//       }
-//     })
-//   })
-// }
 
 //disable-interested-btn
 let disableInterestedBtn = document.querySelector(".disable-interested-btn");
@@ -137,11 +102,7 @@ if (disableInterestedBtn) {
   })
 }
 
-
-
-
-
-
+// image in big size
 const thumbnails = document.querySelectorAll('.listing-thumbnail');
 const modalImage = document.getElementById('modalImage');
 const nextBtn = document.getElementById('nextImage');
@@ -210,7 +171,7 @@ if (prevBtn) {
 // handling compression using canvas
 
 // compression function
-async function compressImage(file, maxWidth = 1200, quality = 0.6) {
+async function compressImage(file, maxWidth = 1000, quality = 0.5) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -249,39 +210,105 @@ async function compressImage(file, maxWidth = 1200, quality = 0.6) {
   });
 }
 
-// handling new listing form (compressing)
-let newListingForm = document.querySelector('#newListingForm');
-if(newListingForm){
-  newListingForm.addEventListener('submit',async function(e){
+// handling both new listing form and edit listing form (compressing, limiting images, showing uploading message)
+let listingForm = document.querySelector('#ListingForm');
+if (listingForm) {
+  listingForm.addEventListener('submit', async function (e) {
     e.preventDefault();
-    const files = Array.from(document.querySelector('#image').files);
-    const compressFiles = await Promise.all(
-      files.map(file => file.size > 1*1024*1024 ? compressImage(file, 1200, 0.6) : Promise.resolve(file))
-    );
-    
-    const formData = new FormData(this);
-    // for (let [key, value] of formData.entries()) {
-    //   console.log(key, value);
-    // }
-    formData.delete('listing[image]');
-    compressFiles.forEach((file)=>{
-      formData.append('listing[image]',file);
-    })
 
-    try{
-      const response = await fetch(this.action, {
-        method: "POST",
-        body: formData
-      });
+    // displaying uploading message5
+    const status = document.querySelector("#status");
+    status.style.display = "block";
 
-      if(response.ok){
-        window.location.href = '/listings';
-      }else{
-        console.log("upload failed!");
+    let imageInput = document.querySelector(".imageInput");
+    let hiddenInputCount = document.querySelectorAll('input[type="hidden"][disabled]').length;
+    imageInput.addEventListener("change", () => {
+      if (imageInput.style.color === "red") {
+        imageInput.style.color = "black";
       }
+    })
+    const fileInput = document.querySelector('#image');
+    const files = Array.from(fileInput.files);
+    const totalImages = files.length + hiddenInputCount;
+    if (totalImages > 6 || totalImages < 1) {
+      imageInput.style.color = "red";
+      const toastLiveExample = document.getElementById('liveToast')
+      const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
+      toastBootstrap.show();
+      status.style.display = "none";
+      return;
     }
-    catch(err){
-      console.log("Upload Error: ",err.message);
+
+
+    // compress in parallel
+    const compressionTasks = files.map(f => {
+      if (f.size > 1 * 1024 * 1024) {
+        return compressImage(f, 1200, 0.7); // returns a File
+      }
+      return Promise.resolve(f);
+    });
+
+    let compressedFiles;
+    try {
+      compressedFiles = await Promise.all(compressionTasks);
+    } catch (err) {
+      console.error("Compression error:", err);
+      if (status) status.style.display = "none";
+      alert("Image compression failed. Please try again.");
+      return;
     }
+    // Replace the input's files with compressed files
+  const dt = new DataTransfer();
+  compressedFiles.forEach(f => dt.items.add(f));
+  fileInput.files = dt.files;
+
+  // Now submit the form so the server can redirect
+  this.submit();
+
+
   });
 }
+
+
+
+// handling edit listing form
+// const editListingForm = document.getElementById('editListingForm');
+// if (editListingForm) {
+//   editListingForm.addEventListener('submit', async function (e) {
+//     e.preventDefault();
+
+//     // displaying uploading message5
+//     const status = document.querySelector("#status");
+//     status.style.display = "block";
+
+//     let single_files = Array.from(document.querySelectorAll('#singleEditImage'))
+//       .map((file) => file.files[0])
+//       .filter(Boolean);
+
+//     let multiple_files = Array.from(document.querySelector('#image').files);
+//     let files = [...single_files, ...multiple_files];
+//     let totalImages = files.length;
+
+//     // checking that uploaded images are under 6
+//     if (totalImages > 6) {
+//       status.style.display = "none";
+//       const toastLiveExample = document.getElementById('liveToast')
+//       const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
+//       toastBootstrap.show();
+//       return;
+//     }
+
+//     const compressFiles = await Promise.all(
+//       files.map(file => file.size > 1 * 1024 * 1024 ? compressImage(file, 1000, 0.5) : Promise.resolve(file))
+//     );
+
+//     const formData = new FormData(this);
+//     for (let [key, value] of formData.entries()) {
+//       console.log(key, value);
+//     }
+//     formData.delete('listing[image]');
+//     formData.delete('');
+
+
+//   })
+// }

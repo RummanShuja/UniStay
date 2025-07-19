@@ -45,23 +45,9 @@ module.exports.update = async (req, res) => {
     let existingImages = listing.image;
     let newListing = req.body.listing;
 
-    let allImages = req.files;
-
-    let newImages = [];
-    let updatedImages = [];
-    if (allImages) {
-        allImages.forEach((img) => {
-            if (img.filename.includes("replace")) {
-                updatedImages.push(img);
-            }
-            else {
-                newImages.push(img);
-            }
-        });
-    }
+    let newImages = req.files;
 
     let deleteImages = req.body.deleteImages;
-
     if (deleteImages) {
         if (!Array.isArray(deleteImages)) {
             deleteImages = [deleteImages];
@@ -80,29 +66,6 @@ module.exports.update = async (req, res) => {
             }
         }
     }
-
-
-    if (updatedImages) {
-        updatedImages.forEach((newI) => {
-            const replaceId = newI.filename.slice(12, -1);
-
-            existingImages.forEach(async(xImg) => {
-                let xId = xImg._id;
-                if (xId.equals(replaceId)) {
-                    const oldPublicId = xImg.public_id;
-                    xImg.url = newI.url,
-                    xImg.originalName = newI.originalName,
-                    xImg.filename = newI.filename,
-                    xImg.public_id = newI.public_id
-                    // destroying the existing images after updating them from cloudinary
-                    await cloudinary.uploader.destroy(oldPublicId, { invalidate: true });
-                }
-            })
-            
-        });
-    }
-    
-
     //inserting new uploaded images
     if (newImages) {
 

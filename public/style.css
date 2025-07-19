@@ -111,10 +111,17 @@ body{
     margin: 5px;
     display: flex;
     column-gap: 5px;
-    width: 100%;
+    min-width: 90%;
     /* border: 2px solid black; */
     border-radius: 20px;
     justify-content: space-between;
+    align-items: center;
+}
+.editImageInfo{
+    display: flex;
+    align-items: center;
+    column-gap: 3px;
+    font-size: small;
 }
 .editImages img{
     width: 100px;
@@ -123,25 +130,10 @@ body{
 .editImages:hover{
     box-shadow: 0 0 10px 1px black;
 }
-.editImages>img{
+.editImages img{
     margin: auto;
 }
-.editImgName{
-    width: 80%;
-}
-.editImgBtn{
-    width: 20%;
-}
 
-.imageDetails{
-    flex: 1;
-    padding: 5px;
-    display: flex;
-    column-gap: 10px;
-    align-items: center;
-    justify-content: space-between;
-    font-size: small;
-}
 .fa-bookmark{
     font-size: 1.3rem;
     margin: 3px;
