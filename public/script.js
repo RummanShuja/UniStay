@@ -133,43 +133,6 @@ if (prevBtn) {
     modalImage.src = imageUrls[currentIndex];
   });
 }
-
-// handling image compression in client side
-// let formUpload = document.querySelector(".upload_form");
-// if(formUpload){
-//   formUpload.addEventListener('submit',async function(e){
-//     e.preventDefault();
-//     const fileInput = document.querySelector('input[type="file"]');
-//     const files = fileInput.files;
-//     // const form = this;
-//     if(!files.length){
-//       form.submit();
-//       return;
-//     }
-//     const options ={
-//       maxSizeMB: 0.6,
-//       maxWidthOrHeight: 1200,
-//       useWebWorker: true
-//     };
-//     const compressedFiles = [];
-//     for(let file of files){
-//       try{
-//         const compressedFile = await imageCompression(file, options);
-//         compressedFiles.push(compressedFile);
-//       }catch(err){
-//         console.log("Compression failed: ",err.message);
-//         compressedFiles.push(file);
-//       }
-//     }
-//     // console.log("compressedFiles",compressedFiles);
-//     const formData = new FormData(this);
-//     console.log(formData);
-
-
-//   })
-// } 
-// handling compression using canvas
-
 // compression function
 async function compressImage(file, maxWidth = 1000, quality = 0.5) {
   return new Promise((resolve, reject) => {
@@ -243,7 +206,7 @@ if (listingForm) {
     // compress in parallel
     const compressionTasks = files.map(f => {
       if (f.size > 1 * 1024 * 1024) {
-        return compressImage(f, 1200, 0.7); // returns a File
+        return compressImage(f, 1000, 0.5); // returns a File
       }
       return Promise.resolve(f);
     });
@@ -270,45 +233,3 @@ if (listingForm) {
 }
 
 
-
-// handling edit listing form
-// const editListingForm = document.getElementById('editListingForm');
-// if (editListingForm) {
-//   editListingForm.addEventListener('submit', async function (e) {
-//     e.preventDefault();
-
-//     // displaying uploading message5
-//     const status = document.querySelector("#status");
-//     status.style.display = "block";
-
-//     let single_files = Array.from(document.querySelectorAll('#singleEditImage'))
-//       .map((file) => file.files[0])
-//       .filter(Boolean);
-
-//     let multiple_files = Array.from(document.querySelector('#image').files);
-//     let files = [...single_files, ...multiple_files];
-//     let totalImages = files.length;
-
-//     // checking that uploaded images are under 6
-//     if (totalImages > 6) {
-//       status.style.display = "none";
-//       const toastLiveExample = document.getElementById('liveToast')
-//       const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
-//       toastBootstrap.show();
-//       return;
-//     }
-
-//     const compressFiles = await Promise.all(
-//       files.map(file => file.size > 1 * 1024 * 1024 ? compressImage(file, 1000, 0.5) : Promise.resolve(file))
-//     );
-
-//     const formData = new FormData(this);
-//     for (let [key, value] of formData.entries()) {
-//       console.log(key, value);
-//     }
-//     formData.delete('listing[image]');
-//     formData.delete('');
-
-
-//   })
-// }
