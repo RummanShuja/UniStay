@@ -53,8 +53,12 @@ module.exports.saveRedirectUrl = (req, res, next) => {
 module.exports.isOwner = async (req, res, next) => {
     let { id } = req.params;
     let listing = await Listing.findById(id);
+    if (!listing) {
+        req.flash("error", "No such listing exists");
+        return res.redirect("/listings");
+    }
     if (req.user._id.equals(listing.owner._id)) {
-        next();
+        return next();
     }
     else {
         req.flash("error", "(Unauthorized) Know your place fool");
@@ -82,12 +86,12 @@ module.exports.uploadMiddleware = async (req, res, next) => {
             // this part is when a listing is edited, so it would contain the listing id in params
             const deleteCount = req.body.deleteImages ? req.body.deleteImages.length : 0;
             const newImages = req.files;
-            
+
             let newImgCount = newImages ? newImages.length : 0;
 
             let listing = await Listing.findById(id);
-            if(!listing){
-                req.flash("error","Listing not found");
+            if (!listing) {
+                req.flash("error", "Listing not found");
                 return res.redirect("/listings");
             }
             let existingImgCount = listing.image ? listing.image.length : 0;
@@ -126,13 +130,17 @@ module.exports.uploadMiddleware = async (req, res, next) => {
             let filename = file.fieldname;
             let originalName = file.originalname;
             let processedBuffer = file.buffer;
-            if(processedBuffer.length>1*1024*1024){
-                processedBuffer = await sharp(processedBuffer)
-                .resize({width: 1200, fit: 'inside', withoutEnlargement:true})
-                .jpeg({quality:50})
-                .toBuffer();
+            // confirming the file type to be an image
+            if (!file.mimetype.startsWith('image/')) {
+                throw new ExpressError(400, "Invalid file type");
             }
-            
+            if (processedBuffer.length > 1 * 1024 * 1024) {
+                processedBuffer = await sharp(processedBuffer)
+                    .resize({ width: 1200, fit: 'inside', withoutEnlargement: true })
+                    .jpeg({ quality: 50 })
+                    .toBuffer();
+            }
+
             const result = await new Promise((resolve, reject) => {
                 const uploadStream = cloudinary.uploader.upload_stream(
                     { folder: 'UniStay' },
