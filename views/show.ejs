@@ -12,7 +12,7 @@
                         <% if(!currUser){ %>
                             You need to log in to show interest and notify the lister.
                             <% } else{%>
-                                We've informed the lister — they'll contact you soon. You can also give them a call.
+                                We've informed the lister — they'll contact you soon. They'll reach out — or you can call them.
                                 <% } %>
                     </div>
                 </div>
@@ -83,7 +83,7 @@
                                     <% if( currUser && pass && listing.availability==="unavailable" ) {%>
                                         <p class="cardText">
                                             <b>Lister Phone Number: </b>
-                                            <%= listing.owner.phoneNumber %>
+                                            <strong><%= listing.owner.phoneNumber %></strong>
                                         </p>
                                         <% } %>
                 </div>
@@ -109,12 +109,12 @@
                 </div>
                 <% } %>
 
-                    <!-- show this I'm interested button to viewer only -->
-                    <% const isLoggedIn=!!currUser; const isViewer=isLoggedIn && currUser.userType !=="lister" ; const
-                        isActive=listing.availability==="unavailable" ; %>
+                    <!-- show this I'm interested button to both viewer and lister but not to owner -->
+                    <% const isLoggedIn=!!currUser; const isActive=listing.availability==="unavailable" ; 
+                        const notOwner = isLoggedIn && !currUser._id.equals(listing.owner._id); %>
 
                         <% if (isActive) { %>
-                            <% if (isViewer) { %>
+                            <% if (notOwner) { %>
                                 <% if (!pass) { %>
                                     <!-- Logged-in viewer, not yet interested: REAL ACTION FORM -->
                                     <div class="w-50 mt-5">

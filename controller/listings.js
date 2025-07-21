@@ -140,7 +140,7 @@ module.exports.interested = async (req, res) => {
                 }
             }
         });
-        req.flash("success", "We've informed the lister. They'll reach out — or you can call them.")
+        req.flash("success", "We've informed the lister. Contact number unlocked! Scroll down to see the lister's number.")
     }
     res.redirect(`/listings/${id}`);
 }
