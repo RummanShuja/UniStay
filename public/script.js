@@ -183,6 +183,20 @@ if (listingForm) {
     const status = document.querySelector("#status");
     status.style.display = "block";
 
+     // Timer for 5s message
+    const timer5s = setTimeout(() => {
+      status.innerText = "Almost done... just a few more seconds.";
+      status.style.color = "orange";
+    }, 5000);
+
+    // Timer for 12s message
+    const timer12s = setTimeout(() => {
+      status.innerText = "Still uploading... may take longer due to network speed.";
+      status.style.color = "red";
+    }, 12000);
+
+   
+
     let imageInput = document.querySelector(".imageInput");
     let hiddenInputCount = document.querySelectorAll('input[type="hidden"][disabled]').length;
     imageInput.addEventListener("change", () => {
@@ -199,6 +213,8 @@ if (listingForm) {
       const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
       toastBootstrap.show();
       status.style.display = "none";
+      clearTimeout(timer5s);
+      clearTimeout(timer12s);
       return;
     }
 
@@ -217,16 +233,25 @@ if (listingForm) {
     } catch (err) {
       console.error("Compression error:", err);
       if (status) status.style.display = "none";
+      clearTimeout(timer5s);
+      clearTimeout(timer12s);
       alert("Image compression failed. Please try again.");
       return;
     }
     // Replace the input's files with compressed files
-  const dt = new DataTransfer();
-  compressedFiles.forEach(f => dt.items.add(f));
-  fileInput.files = dt.files;
+    const dt = new DataTransfer();
+    compressedFiles.forEach(f => dt.items.add(f));
+    fileInput.files = dt.files;
 
-  // Now submit the form so the server can redirect
-  this.submit();
+    // done with uploads → stop slow timer, update status, submit
+    clearTimeout(timer5s);
+      clearTimeout(timer12s);
+    status.innerText = "Submitting...";
+    status.style.color = "green";
+
+
+    // Now submit the form so the server can redirect
+    this.submit();
 
 
   });
