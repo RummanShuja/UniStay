@@ -6,6 +6,9 @@ const passport = require("passport");
 const wrapAsync = require("../utils/wrapAsync.js");
 
 
+router.route("/about")
+    .get(controller.about);
+
 router.route("/signup")
     .get(controller.signup);
 

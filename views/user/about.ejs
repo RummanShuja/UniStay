@@ -1,0 +1,131 @@
+<%- layout("/layouts/boilerplate.ejs") %>
+
+<body>
+  <div class="container mt-1">
+    <!-- Hero Section -->
+    <div class="text-center mb-5 p-4 bg-light rounded-3 shadow-sm">
+      <h2 class="display-5 fw-bold text-primary mb-3">About UniStay</h2>
+      <p class="lead fs-4 text-dark">
+        Your all-in-one student housing and marketplace platform
+      </p>
+      <div class="d-flex justify-content-center">
+        <div class="border-top border-primary w-25 my-3"></div>
+      </div>
+      <p class="fs-5 text-muted mx-auto" style="max-width: 700px;">
+        UniStay revolutionizes student living by connecting students with flats, PGs, roommates, and affordable second-hand items. Whether you're a student, owner, or broker — we've got you covered.
+      </p>
+    </div>
+
+    <!-- How to Use Section -->
+    <div class="card mb-4 border-0 shadow-sm">
+      <div class="card-header bg-primary text-white">
+        <h4 class="fw-semibold mb-0">
+          <i class="fas fa-lightbulb me-2"></i>How to Use
+        </h4>
+      </div>
+      <div class="card-body">
+        <div class="mb-4">
+          <h5 class="text-secondary d-flex align-items-center">
+            <span class="badge bg-warning text-dark me-2"><i class="fas fa-user-graduate"></i></span>
+            For Students
+          </h5>
+          <ul class="fs-6 text-muted ps-4">
+            <li class="mb-2">List your flat to find roommates</li>
+            <li class="mb-2"><strong>Know an empty flat?</strong> List it (with permission) and earn brokerage</li>
+            <li>Sell unused furniture and appliances</li>
+          </ul>
+        </div>
+
+        <div>
+          <h5 class="text-secondary d-flex align-items-center">
+            <span class="badge bg-info text-white me-2"><i class="fas fa-user-tie"></i></span>
+            For Owners/Brokers
+          </h5>
+          <ul class="fs-6 text-muted ps-4">
+            <li>Directly connect with student tenants</li>
+            <li>Manage all your properties in one place</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Upload Listing Section -->
+    <div class="card mb-4 border-0 shadow-sm">
+      <div class="card-header bg-primary text-white">
+        <h4 class="fw-semibold mb-0">
+          <i class="fas fa-upload me-2"></i>How to List
+        </h4>
+      </div>
+      <div class="card-body">
+        <ol class="fs-6 text-muted ps-3">
+          <li class="mb-2">Sign in with Google</li>
+          <li class="mb-2">Complete your profile:
+            <ul class="mt-2">
+              <li class="mb-1">Add phone number</li>
+              <li>Set type to <span class="badge bg-success">Lister</span></li>
+            </ul>
+          </li>
+          <li class="mb-2">Click "Add New Listing"</li>
+          <li class="mb-2">Fill details and upload photos</li>
+          <li>Manage interested users from your listing's page</li>
+        </ol>
+        <div class="mt-3 p-3 bg-light rounded">
+          <small class="text-muted"><i class="fas fa-info-circle text-primary me-1"></i> When users click "Interested", both parties get each other's contact details.</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search Section -->
+    <div class="card mb-5 border-0 shadow-sm">
+      <div class="card-header bg-primary text-white">
+        <h4 class="fw-semibold mb-0">
+          <i class="fas fa-search me-2"></i>Looking for a Flat/PG?
+        </h4>
+      </div>
+      <div class="card-body">
+        <ul class="fs-6 text-muted ps-3">
+          <li class="mb-2">Browse listings anonymously</li>
+          <li class="mb-2">To contact listers:
+            <ul class="mt-2 ps-3">
+              <li class="mb-1">Add phone number to your profile</li>
+              <li>Set your user type to <span class="badge bg-info text-white">Viewer</span></li>
+            </ul>
+          </li>
+          <li class="mb-2">Click "I'm Interested" to connect with the lister</li>
+          <li class="mb-2">Save your favorite listings for easy access later</li>
+          <li>All your saved listings appear under <strong>Saved Listings</strong> in your dashboard</li>
+        </ul>
+        <div class="mt-3 p-3 bg-light rounded">
+          <small class="text-muted"><i class="fas fa-star text-warning me-1"></i> You can browse listings without signing in, but need an account to contact listers.</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact Section -->
+    <div class="text-center p-4 bg-light rounded-3 shadow-sm">
+      <h4 class="fw-semibold text-dark mb-3">Have Questions?</h4>
+      <p class="fs-5 text-muted mb-4">
+        We'd love to hear from you!
+      </p>
+      
+      <!-- Contact Button with visible email fallback -->
+      <div class="d-flex flex-column align-items-center">
+        <a href="mailto:unistaydtu@gmail.com?subject=UniStay Inquiry&body=Hello UniStay Team," 
+           class="btn btn-primary btn-lg px-4 mb-3">
+          <i class="fas fa-envelope me-2"></i>Email Us
+        </a>
+        <div class="d-flex align-items-center">
+          <i class="fas fa-envelope text-muted me-2"></i>
+          <span class="fs-5">unistaydtu@gmail.com</span>
+        </div>
+      </div>
+      
+      <div class="d-flex justify-content-center mt-4">
+        <div class="border-top w-50 my-2"></div>
+      </div>
+      <p class="text-muted mt-2 mb-0">
+        <small>UniStay - Making student life easier</small>
+      </p>
+    </div>
+  </div>
+</body>

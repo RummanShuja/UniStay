@@ -1,6 +1,10 @@
 const User = require("../models/user.js");
 const passport = require("passport");
 
+module.exports.about = (req,res)=>{
+    res.render("user/about.ejs");
+}
+
 module.exports.signup = (req, res) => {
     res.render("user/signup.ejs");
 }
